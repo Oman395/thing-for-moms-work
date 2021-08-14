@@ -1,6 +1,7 @@
 const fs = require("fs");
 const readline = require("readline");
 const csv = require("csvtojson");
+const { Parser } = require('json2csv');
 var failedThings = [];
 var productValueNameAndWeights = {};
 var data;
@@ -9,6 +10,9 @@ var rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
 });
+async function sleep(time) {
+    await new Promise(r => setTimeout(r, time));
+}
 rl.question("Do you need to select a new CSV file? Say 'true' or 'false'.", (reply) => {
     if (reply == "true") {
         rl.question("Drag and drop file", (path) => {
@@ -113,6 +117,7 @@ rl.question("Do you need to select a new CSV file? Say 'true' or 'false'.", (rep
                 productValueNameAndWeights[currentCampaign][currentValue] = { "value": valueOfCurrentValueLol, "weight": weightOfCurrentValue, "result": weightOfCurrentValue * valueOfCurrentValueLol };
                 e++;
             }
+            data[i].Results = productValueNameAndWeights[currentCampaign].value;
             i++
         }
         var text = "";
@@ -124,6 +129,14 @@ rl.question("Do you need to select a new CSV file? Say 'true' or 'false'.", (rep
             }
         }
         fs.writeFileSync("results.txt", text);
-        fs.writeFileSync("result.json", JSON.stringify(productValueNameAndWeights));
+        fs.writeFileSync("results.json", JSON.stringify(productValueNameAndWeights));
+        try {
+            const parser = new Parser();
+            const csv = parser.parse(data);
+            fs.writeFileSync("results.csv", csv);
+        } catch (err) {
+            console.error(err);
+        }
+        sleep(10000);
     }
 });
