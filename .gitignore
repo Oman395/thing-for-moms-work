@@ -1,0 +1,8 @@
+*.exe
+results
+*.txt
+testing
+data
+DummyData
+exceldata
+*.csv
